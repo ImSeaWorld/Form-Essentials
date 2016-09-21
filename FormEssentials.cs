@@ -41,12 +41,20 @@ namespace FormEssentials
                 LeListView.Items.Add(lv_item);
             }
 
-            public static bool doesItemExistLV(ListView LeListView, string search)
+            public static bool doesItemExistLV(ListView LeListView, string search, bool checkSubItems = false)
             {
                 foreach (ListViewItem lv_item in LeListView.Items)
-                    if (lv_item.Text.ToLower() == search.ToLower())
-                        return true;
-                    else return false;
+                {
+                    if (checkSubItems) {
+                        for (int i = 0; i < lv_item.SubItems.Count; i++) {
+                            if (lv_item.SubItems[i].Text.ToLower() == search.ToLower())
+                                return true;
+                        }
+                    } else {
+                        if (lv_item.Text.ToLower() == search.ToLower())
+                            return true;
+                    }
+                }
                 return false;
             }
 
