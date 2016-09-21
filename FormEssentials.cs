@@ -13,9 +13,9 @@ namespace FormEssentials
 {
     public static class Forms
     {
-        public static bool isFormOpen(Form nigform)
+        public static bool isFormOpen(Form _form)
         {
-            return Application.OpenForms[nigform.Name] as Form != null;
+            return Application.OpenForms[_form.Name] as Form != null;
         }
 
         public static class TextBoxes
