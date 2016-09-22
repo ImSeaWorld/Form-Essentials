@@ -1,4 +1,22 @@
-﻿using System;
+/*
+    Form Essentials, Complicated Functions With Little Work
+    Copyright (C) 2016 SeaWorld
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,84 +31,134 @@ namespace FormEssentials
 {
     public static class Forms
     {
-        public static bool isFormOpen(Form _form)
+        public static bool isFormOpen(Form nigform)
         {
-            return Application.OpenForms[_form.Name] as Form != null;
+            return Application.OpenForms[nigform.Name] as Form != null;
+        }
+    }
+
+    public static class TextBoxes
+    {
+        /// <summary>
+        ///     Grabs all textboxes within a parent by number. textbox1, textbox2, etc.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="control"></param>
+        /// <param name="dec"></param>
+        /// <returns>
+        ///     (List<TextBox>)Returns all textboxes affiliated within the parent control.
+        /// </returns>
+        public static List<TextBox> GetTextBoxesByNum(string name, Control control, bool dec = false)
+        {
+            List<TextBox> tb = new List<TextBox>();
+            foreach (Control con in control.Controls)
+                if (con.Name.Contains(name))
+                    tb.Add(con as TextBox);
+            return dec ? tb.OrderByDescending(x => int.Parse(x.Name.Replace(name, ""))).AsEnumerable().ToList() : tb.OrderByDescending(x => int.Parse(x.Name.Replace(name, ""))).AsEnumerable().Reverse().ToList();
+        }
+    }
+
+    public static class ListViews
+    {
+        /// <summary>
+        ///     Extension of ListView to add more items in one line.
+        /// </summary>
+        /// <param name="LeListView"></param>
+        /// <param name="item"></param>
+        /// <param name="moreItems"></param>
+        public static void AddMore(this ListView LeListView, string item, params object[] moreItems)
+        {
+            ListViewItem lv_item = new ListViewItem(item);
+            if (moreItems.Length > 0)
+                for (int i = 0; i < moreItems.Length; i++)
+                    lv_item.SubItems.Add(moreItems[i].ToString());
+            LeListView.Items.Add(lv_item);
         }
 
-        public static class TextBoxes
+        public static bool doesItemExistLV(this ListView LeListView, string search, bool checkSubItems = false)
         {
-            public static List<TextBox> GetTextBoxesByNum(string name, Control control)
-            {
-                List<TextBox> tb = new List<TextBox>();
-                foreach (Control con in control.Controls)
-                    if (con.Name.Contains(name))
-                        tb.Add(con as TextBox);
-                return tb.OrderByDescending(x => int.Parse(x.Name.Replace(name, ""))).AsEnumerable().Reverse().ToList();
-            }
-        }
-
-        public static class ListViews
-        {
-            public static void addToListView(ListView LeListView, string item, params object[] moreItems)
-            {
-                ListViewItem lv_item = new ListViewItem(item);
-                if (moreItems.Length > 0)
-                    for (int i = 0; i < moreItems.Length; i++)
-                        lv_item.SubItems.Add(moreItems[i].ToString());
-                LeListView.Items.Add(lv_item);
-            }
-
-            public static bool doesItemExistLV(ListView LeListView, string search, bool checkSubItems = false)
-            {
-                foreach (ListViewItem lv_item in LeListView.Items)
-                {
-                    if (checkSubItems) {
-                        for (int i = 0; i < lv_item.SubItems.Count; i++) {
-                            if (lv_item.SubItems[i].Text.ToLower() == search.ToLower())
-                                return true;
-                        }
-                    } else {
-                        if (lv_item.Text.ToLower() == search.ToLower())
+            foreach (ListViewItem lv_item in LeListView.Items) {
+                if (checkSubItems) {
+                    for (int i = 0; i < lv_item.SubItems.Count; i++) {
+                        if (lv_item.SubItems[i].Text.ToLower() == search.ToLower())
                             return true;
                     }
-                }
-                return false;
-            }
-
-            public static bool doesItemContainLV(ListView LeListView, string search, int loc)
-            {
-                foreach (ListViewItem lv_item in LeListView.Items)
-                    if (lv_item.SubItems[loc].Text.ToLower().Contains(search.ToLower()))
+                } else {
+                    if (lv_item.Text.ToLower() == search.ToLower())
                         return true;
-                    else return false;
-                return false;
+                }
             }
+            return false;
+        }
 
-            public static int whereIsInLV(ListView lv, string search)
-            {
-                if (lv.Items.Count > 0)
-                    for (int x = 0; x < lv.Items.Count; x++)
-                        if (lv.Items[x].Text == search)
-                            return x;
-                return -1;
-            }
+        public static bool doesItemContain(this ListView LeListView, string search, int loc)
+        {
+            foreach (ListViewItem lv_item in LeListView.Items)
+                return lv_item.SubItems[loc].Text.ToLower().Contains(search.ToLower());
+            return false;
+        }
 
-            public static void removeDupesLV(ListView lv)
-            {
-                if (lv.Items.Count > 0)
-                    for (int x = 0; x < lv.Items.Count; x++)
-                        for (int y = 1; y < lv.Items.Count; y++)
-                            if (x != y)
-                                if (lv.Items[x].Text == lv.Items[y].Text)
-                                    lv.Items[y].Remove();
-            }
+        public static bool doesItemContain2(this ListViewItem Item, string search, int loc)
+        {
+            return Item.SubItems[loc].Text.ToLower().Contains(search.ToLower());
+        }
+
+        /// <summary>
+        ///     This will search through the listview and return the location.
+        /// </summary>
+        /// <param name="lv"></param>
+        /// <param name="search"></param>
+        /// <returns>
+        ///     (int)Location of found object.
+        /// </returns>
+        public static int Search(this ListView lv, string search)
+        {
+            if (lv.Items.Count > 0)
+                for (int x = 0; x < lv.Items.Count; x++)
+                    if (lv.Items[x].Text == search)
+                        return x;
+            return -1;
+        }
+
+        /// <summary>
+        ///     Removed any sort of duplicates within a listview.
+        /// </summary>
+        /// <param name="lv"></param>
+        public static void removeDupes(this ListView lv)
+        {
+            if (lv.Items.Count > 0)
+                for (int x = 0; x < lv.Items.Count; x++)
+                    for (int y = 1; y < lv.Items.Count; y++)
+                        if (x != y)
+                            if (lv.Items[x].Text == lv.Items[y].Text)
+                                lv.Items[y].Remove();
         }
     }
 
     public static class Encodings
     {
+        /// <summary>
+        ///     Encodes string with Base64 and has the capabilities of decoding as well.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="encode"></param>
+        /// <returns>
+        ///     (string)Base64 encoded or decoded.
+        /// </returns>
         public static string Base64(string input, bool encode = true)
+        {
+            return encode ? Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(input)) : System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(input));
+        }
+
+        /// <summary>
+        ///     Extenstion of (string). This also encodes/decodes strings/base64.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="encode"></param>
+        /// <returns>
+        ///     (string)Base64 encoded or decoded.
+        /// </returns>
+        public static string Base64_2(this string input, bool encode = true)
         {
             return encode ? Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(input)) : System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(input));
         }
@@ -221,14 +289,33 @@ namespace FormEssentials
             TimeSpan ts = (date1 - date2);
             return String.Format("{0} Year(s), {1} Month(s), {2} Day(s), {3} Hour(s), {4} Minute(s), {5} Second(s)", Math.Truncate(ts.TotalDays / 365), Math.Truncate(ts.TotalDays % 365) / 30, Math.Truncate(ts.TotalDays % 365) % 30, ts.Hours, ts.Minutes, ts.Seconds);
         }
+
+        public static string DateTimeToUnix_s(DateTime time)
+        { return time.Subtract(new DateTime(1970, 1, 1)).TotalSeconds.ToString(); }
+        public static int DateTimeToUnix(DateTime time)
+        { return (Int32)time.Subtract(new DateTime(1970, 1, 1)).TotalSeconds; }
+
+        public static string DateTimeToJava_s(DateTime time)
+        { return time.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds.ToString(); }
+        public static int DateTimeToJava(DateTime time)
+        { return (Int32)time.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds; }
+
+        public static DateTime UnixToDateTime(int unix)
+        { return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(unix).ToLocalTime(); }
+        public static DateTime UnixToDateTime(string unix)
+        { return UnixToDateTime(Convert.ToInt32(unix)); }
+
+        public static DateTime JavaToDateTime(int JavaTimeStamp)
+        { return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(Convert.ToInt32(JavaTimeStamp)).ToLocalTime(); }
+        public static DateTime JavaToDateTime(string JavaTimeStamp)
+        { return JavaToDateTime(Convert.ToInt32(JavaTimeStamp)); }
     }
 
     public static class WindowsConsole
     {
         public static bool ExecConsole(string cmd, bool runas = false, ProcessWindowStyle style = ProcessWindowStyle.Hidden)
         {
-            try
-            {
+            try {
                 Process proc = new Process();
                 ProcessStartInfo procStartInfo = new ProcessStartInfo();
                 procStartInfo.WindowStyle = style;
@@ -238,8 +325,7 @@ namespace FormEssentials
                 proc.StartInfo = procStartInfo;
                 proc.Start();
                 return true;
-            }
-            catch { return false; }
+            } catch { return false; }
         }
     }
 }
